@@ -19,8 +19,7 @@ exports.create = (text, callback) => {
 
   counter.getNextUniqueId((err, id) => {
     if (err) {
-      console.log('error1');
-      return;
+      throw ('error1');
     } else {
     var pathName = path.join(exports.dataDir, id + '.txt');
     fs.writeFile(pathName, text, (err) => {
@@ -30,31 +29,81 @@ exports.create = (text, callback) => {
         callback(null, { id, text });
       }
     });
-    } 
-    
+    }  
   });
 
-  
-
-  // var id = counter.getNextUniqueId(); // needs to pass in a callback to getNextUiqueId
+  // var id = counter.getNextUniqueId();
   // items[id] = text;
   // callback(null, { id, text });
 };
 
 exports.readAll = (callback) => {
-  var data = _.map(items, (text, id) => {
-    return { id, text };
+
+  // I - callback function (takes in err, todoList)
+  // O - returns an array of todos to client app
+  // C - none
+  // E - should return an empty array when there are no todos
+
+
+  // use fs.readdir to iterate over all files in the data folder
+  // create an object with id and text both set to the id
+  // push each object into an array
+  // invoke the callback function passing in null and the array
+  // return the array
+
+  let todos = [];
+
+  let regex = /\d+/i;
+
+  fs.readdir(exports.dataDir, (err, files) => {
+    if (err) {
+      console.log('error');
+      return;
+    }
+    todos = files.map(file => {
+      console.log(file);
+      console.log(file.match(regex));
+      let digits = file ? file.match(regex) ? file.match(regex)[0] : null : null;
+      return {id: digits, text: digits};
+    });
+    callback(null, todos);
   });
-  callback(null, data);
+
+  return todos;
+
+  // var data = _.map(items, (text, id) => {
+  //   return { id, text };
+  // });
+  // callback(null, data);
 };
 
 exports.readOne = (id, callback) => {
-  var text = items[id];
-  if (!text) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    callback(null, { id, text });
-  }
+
+  // I - id, and callback function that takes in error and an object with id and todo text
+  // O - none
+  // C - none
+  // E - return error for non-existent todo
+
+  // read content of that specific id
+  // create an object with id and text corresponding to todo
+  // respond the contents to the client
+
+  let todoPath = path.join(exports.dataDir, `${id}.txt`)
+
+  fs.readFile(todoPath, (err, todoText) => {
+    if (err) {
+      return callback(new Error(`No item with id: ${id}`));
+    }
+    callback(null, {id, text: String(todoText)});
+  });
+
+
+  // var text = items[id];
+  // if (!text) {
+  //   callback(new Error(`No item with id: ${id}`));
+  // } else {
+  //   callback(null, { id, text });
+  // }
 };
 
 exports.update = (id, text, callback) => {

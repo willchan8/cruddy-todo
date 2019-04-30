@@ -106,7 +106,7 @@ describe('todos', () => {
     });
   });
 
-  xdescribe('readAll', () => {
+  describe('readAll', () => {
     it('should return an empty array when there are no todos', (done) => {
       todos.readAll((err, todoList) => {
         expect(err).to.be.null;
@@ -133,7 +133,7 @@ describe('todos', () => {
 
   });
 
-  xdescribe('readOne', () => {
+  describe('readOne', () => {
     it('should return an error for non-existant todo', (done) => {
       todos.readOne('notAnId', (err, todo) => {
         expect(err).to.exist;
@@ -153,7 +153,7 @@ describe('todos', () => {
     });
   });
 
-  xdescribe('update', () => {
+  describe('update', () => {
     beforeEach((done) => {
       todos.create('original todo', done);
     });
