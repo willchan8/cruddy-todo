@@ -61,8 +61,6 @@ exports.readAll = (callback) => {
       return;
     }
     todos = files.map(file => {
-      console.log(file);
-      console.log(file.match(regex));
       let digits = file ? file.match(regex) ? file.match(regex)[0] : null : null;
       return {id: digits, text: digits};
     });
@@ -107,24 +105,76 @@ exports.readOne = (id, callback) => {
 };
 
 exports.update = (id, text, callback) => {
-  var item = items[id];
-  if (!item) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    items[id] = text;
-    callback(null, { id, text });
-  }
+  // I - id the todo to change, updated text, callback (with inputs err and todo [todo is an obj { id, text }])
+  // O - none, just side-effects
+  // C - none
+  // E - id doesn't exist
+
+  // Access data directory
+    // If the file for a given ID can be read
+      // Then write the file
+  // Find specific todo by ID
+  // Rewrite text that is inside of that file
+  // Invoke the callback
+  
+  var todoPath = path.join(exports.dataDir, `${id}.txt`);
+
+  fs.readFile(todoPath, err => {
+    if (err) {
+      callback(new Error(`No item with id: ${id}`));
+    } else {
+      fs.writeFile(todoPath, text, err => {
+        if (err) {
+          return callback(new Error(`No item with id: ${id}`));
+        }
+          callback(null, { id, text });
+      });
+    };
+  });
+  
+  // var item = items[id];
+  // if (!item) {
+  //   callback(new Error(`No item with id: ${id}`));
+  // } else {
+  //   items[id] = text;
+  //   callback(null, { id, text });
+  // }
 };
 
 exports.delete = (id, callback) => {
-  var item = items[id];
-  delete items[id];
-  if (!item) {
-    // report an error if item not found
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    callback();
-  }
+  // I - the id, and some callback which takes in just an error
+  // O - no output
+  // C - none
+  // E - non-existent ids
+
+  // read the file
+    // if it exists
+      // delete the file
+    // otherwise
+      // throw an error
+
+  var todoPath = path.join(exports.dataDir, `${id}.txt`);
+
+  fs.readFile(todoPath, err => {
+    if (err) {
+      return callback(new Error(`No item with id: ${id}`));
+    }
+    fs.unlink(todoPath, err => {
+      if (err) {
+        return callback(new Error(`No item with id: ${id}`));
+      }
+      callback(null);
+    })
+  })
+  
+  // var item = items[id];
+  // delete items[id];
+  // if (!item) {
+  //   // report an error if item not found
+  //   callback(new Error(`No item with id: ${id}`));
+  // } else {
+  //   callback();
+  // }
 };
 
 // Config+Initialization code -- DO NOT MODIFY /////////////////////////////////
