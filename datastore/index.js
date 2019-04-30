@@ -8,9 +8,37 @@ var items = {};
 // Public API - Fix these CRUD functions ///////////////////////////////////////
 
 exports.create = (text, callback) => {
-  var id = counter.getNextUniqueId();
-  items[id] = text;
-  callback(null, { id, text });
+  // I: text of the todo (string), callback (error-first pattern)
+  // O: none
+  // C: none
+  // E: none
+
+  // take the todo string
+  // save it in a file in the data folder
+  // the name of that file is that unique identifier (in counter.txt)
+
+  counter.getNextUniqueId((err, id) => {
+    if (err) {
+      console.log('error1');
+      return;
+    } else {
+    var pathName = path.join(exports.dataDir, id + '.txt');
+    fs.writeFile(pathName, text, (err) => {
+      if (err) {
+        throw ('error writing the todo');
+      } else {
+        callback(null, { id, text });
+      }
+    });
+    } 
+    
+  });
+
+  
+
+  // var id = counter.getNextUniqueId(); // needs to pass in a callback to getNextUiqueId
+  // items[id] = text;
+  // callback(null, { id, text });
 };
 
 exports.readAll = (callback) => {
@@ -53,6 +81,7 @@ exports.delete = (id, callback) => {
 // Config+Initialization code -- DO NOT MODIFY /////////////////////////////////
 
 exports.dataDir = path.join(__dirname, 'data');
+// = './data'
 
 exports.initialize = () => {
   if (!fs.existsSync(exports.dataDir)) {

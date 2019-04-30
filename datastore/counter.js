@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const sprintf = require('sprintf-js').sprintf;
 
-var counter = 0;
+// var counter = 0;
 
 // Private helper functions ////////////////////////////////////////////////////
 
@@ -15,6 +15,7 @@ const zeroPaddedNumber = (num) => {
   return sprintf('%05d', num);
 };
 
+// Reads the counterFile
 const readCounter = (callback) => {
   fs.readFile(exports.counterFile, (err, fileData) => {
     if (err) {
@@ -25,6 +26,7 @@ const readCounter = (callback) => {
   });
 };
 
+// Writes the counterFile
 const writeCounter = (count, callback) => {
   var counterString = zeroPaddedNumber(count);
   fs.writeFile(exports.counterFile, counterString, (err) => {
@@ -37,10 +39,34 @@ const writeCounter = (count, callback) => {
 };
 
 // Public API - Fix this function //////////////////////////////////////////////
+// Save the current state of the counter to the hard drive, 
+// so it's persisted between server restarts. 
+// Do this by rewriting getNextUniqueId to make use of the provided readCounter and writeCounter functions.
 
-exports.getNextUniqueId = () => {
-  counter = counter + 1;
-  return zeroPaddedNumber(counter);
+exports.getNextUniqueId = (callback) => {
+  // I: accept callback
+  // O: padded number
+  // C: none
+  // E: nope
+
+  // TODO: readCounter expects callback to follow error-first pattern
+  // TODO: pass in input callback as 2nd argument to writeCounter
+
+  // readCounter
+  // Increment counter
+  // writeCounter (save)
+
+  // old code:
+  // counter = counter + 1;
+  // return zeroPaddedNumber(counter);
+  readCounter((err, count) => {
+    if (err) {
+      console.log('Error');
+      return;
+    }
+    count++;
+    writeCounter(count, callback);
+  });
 };
 
 
@@ -48,3 +74,4 @@ exports.getNextUniqueId = () => {
 // Configuration -- DO NOT MODIFY //////////////////////////////////////////////
 
 exports.counterFile = path.join(__dirname, 'counter.txt');
+// exports.counterFile = 'Desktop/Users/code/whateverProject/counter.txt';
