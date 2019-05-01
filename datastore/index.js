@@ -2,6 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('underscore');
 const counter = require('./counter');
+var Promise = require('bluebird');
+
+// Promise.promisifyAll(fs);
+
 
 var items = {};
 
@@ -37,7 +41,7 @@ exports.create = (text, callback) => {
   // callback(null, { id, text });
 };
 
-exports.readAll = (callback) => {
+exports.readAllOld = (callback) => {
 
   // I - callback function (takes in err, todoList)
   // O - returns an array of todos to client app
@@ -73,6 +77,57 @@ exports.readAll = (callback) => {
   //   return { id, text };
   // });
   // callback(null, data);
+};
+
+exports.readAll = (callback) => {
+
+  // I: callback function, with error and todoList array
+  // O: return array
+  // C: none
+  // E: if directy does not exist, or no todos
+
+  // use fs.readdir to read all files in the data folder
+    // for each file,
+      // extract the id using regex
+      // extract the text of the todo using fs.readFile
+      // then create an object with id and text
+      // push that object into array
+
+
+  let todos = [];
+  let promisesArray = [];
+
+  let regex = /\d+/i;
+
+  fs.readdir(exports.dataDir, (err, files) => {
+    if (err) {
+      console.log('error');
+      return;
+    }
+    files.forEach(file => {
+      let digits = file ? file.match(regex) ? file.match(regex)[0] : null : null;
+      let filePath = path.join(exports.dataDir, file);
+
+      promisesArray.push(new Promise((resolve, reject) => {
+        fs.readFile(filePath, (err, data) => {
+          if (err) {
+            return reject(err);
+          }
+          let text = String(data);
+          resolve({id: digits, text});
+        });
+      }));
+    });
+
+    Promise.all(promisesArray).then(results => {
+      callback(null, results);
+    })
+    // console.log(promisesArray);
+    // callback(null, todos);
+  });
+
+  return todos;
+  
 };
 
 exports.readOne = (id, callback) => {
